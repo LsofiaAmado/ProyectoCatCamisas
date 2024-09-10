@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id         Int      @id @default(autoincrement())
+  nombre     String
+  email      String   @unique
+  contrasena String
+  rol        String
+  Artista    Artista? @relation(fields: [artistaId], references: [id])
+  Cliente    Cliente? @relation(fields: [clienteId], references: [id])
+  artistaId  Int?     @unique
+  clienteId  Int?     @unique
+}
+
+model Artista {
+  id             Int              @id @default(autoincrement())
+  estampas       Estampa[]
+  filtroEstampas FiltroEstampas[]
+  usuario        Usuario?         @relation
+}
+
+model Cliente {
+  id             Int           @id @default(autoincrement())
+  usuario        Usuario?      @relation
+  carrito        Camiseta[]
+  compras        Compra[]
+  estadisticas   Estadisticas? @relation("ClienteEstadisticas", fields: [estadisticasId], references: [id])
+  estadisticasId Int?
+}
+
+model Estampa {
+  id                  Int                @id @default(autoincrement())
+  nombre              String
+  descripcion         String
+  imagenes            String
+  tema                String
+  popularidad         Int
+  rating              Float
+  autorId             Int
+  autor               Artista            @relation(fields: [autorId], references: [id])
+  disponibleParaVenta Boolean
+  camisetas           Camiseta[]
+  estampasMasVendidas Estadisticas[]     @relation("EstampasVendidas")
+  estampasCatalogo    CatalogoEstampas[] @relation("EstampasCatalogo")
+}
+
+model Camiseta {
+  id                Int                 @id @default(autoincrement())
+  modelo            String
+  color             String
+  talla             String
+  material          String
+  precio            Float
+  estampaId         Int
+  estampa           Estampa             @relation(fields: [estampaId], references: [id])
+  compras           Compra[]            @relation("CamisetaCompra")
+  camisetasCatalogo CatalogoCamisetas[] @relation("CamisetasCatalogo")
+  cliente           Cliente?            @relation(fields: [clienteId], references: [id])
+  clienteId         Int?
+}
+
+model Compra {
+  id           Int        @id @default(autoincrement())
+  estado       String
+  clienteId    Int
+  cliente      Cliente    @relation(fields: [clienteId], references: [id])
+  camisetas    Camiseta[] @relation("CamisetaCompra")
+  fecha        DateTime
+  total        Float
+  metodoPagoId Int
+  metodoPago   MetodoPago @relation(fields: [metodoPagoId], references: [id])
+}
+
+model Estadisticas {
+  id                  Int       @id @default(autoincrement())
+  ventasTotales       Float
+  estampasMasVendidas Estampa[] @relation("EstampasVendidas")
+  clientesFrecuentes  Cliente[] @relation("ClienteEstadisticas")
+}
+
+model MetodoPago {
+  id       Int      @id @default(autoincrement())
+  tipo     String
+  detalles String
+  compras  Compra[]
+}
+
+model FiltroEstampas {
+  id           Int     @id @default(autoincrement())
+  tema         String
+  popularidad  Int
+  ratingMinimo Float
+  autorId      Int
+  autor        Artista @relation(fields: [artistaId], references: [id])
+  artistaId    Int
+}
+
+model FiltroCamisetas {
+  id       Int    @id @default(autoincrement())
+  modelo   String
+  color    String
+  talla    String
+  material String
+}
+
+model CatalogoEstampas {
+  id       Int       @id @default(autoincrement())
+  estampas Estampa[] @relation("EstampasCatalogo")
+}
+
+model CatalogoCamisetas {
+  id        Int        @id @default(autoincrement())
+  camisetas Camiseta[] @relation("CamisetasCatalogo")
+}
