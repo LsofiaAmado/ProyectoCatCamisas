@@ -10,9 +10,18 @@ function Registro() {
   } = useForm();
 
   const onSubmit = handleSubmit(async (data) => {
+    if (data.password != data.confirmPassword) {
+      return alert("Las contraseñas no coinciden");
+    }
+
     const res = await fetch("/api/auth/register", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        nombre: data.username,
+        email: data.email,
+        contrasena: data.password,
+        rol: data.rol,
+      }),
       headers: {
         "Content-type": "application/json",
       },

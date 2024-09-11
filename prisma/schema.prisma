@@ -12,7 +12,7 @@ datasource db {
 
 model Usuario {
   id         Int      @id @default(autoincrement())
-  nombre     String
+  nombre     String   @unique
   email      String   @unique
   contrasena String
   rol        String
