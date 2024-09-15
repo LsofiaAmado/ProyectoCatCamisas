@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm, FieldError } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 function Registro() {
   const {
@@ -8,6 +9,8 @@ function Registro() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const router = useRouter();
 
   const onSubmit = handleSubmit(async (data) => {
     if (data.password != data.confirmPassword) {
@@ -27,7 +30,12 @@ function Registro() {
       },
     });
     const resJSON = await res.json();
-    console.log(resJSON);
+
+    if (res.ok) {
+      router.push("/auth/login");
+    }
+
+    console.log(res);
   });
 
   console.log(errors);
